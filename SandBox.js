@@ -10,6 +10,7 @@ let CirclePos;
 let ArrowTo;
 let TempRadius;
 let MouseHeld = false;
+let Stat;
 
 function setup() {
   CirclePos = createVector(mouseX - canvas.width/2,mouseY - canvas.height/2);
@@ -45,6 +46,9 @@ function setup() {
 
   MassSlider = createSlider(50,500,100);
   MassSlider.position(window.innerWidth * (0.85),200)
+
+  Stat = new StaticCircle(0,0,MassSlider.value(),"stat",0.8)
+  World.addobject(Stat.particle);
 }
 
 function draw() {
@@ -62,6 +66,7 @@ function draw() {
   for (var i = 0; i < particleArr.length; i++){
     particleArr[i].update();
   }
+  Stat.update();
   if (Playing){
     AdvanceWorld();
   }
@@ -70,6 +75,8 @@ function SetPos(){
   MouseHeld = true
   CirclePos.x = mouseX-canvas.width/2;
   CirclePos.y = mouseY - canvas.height/2;
+  ArrowTo.x = mouseX - canvas.width/2;
+  ArrowTo.y = mouseY - canvas.height/2;
   TempRadius = 2*Math.sqrt(MassSlider.value());
 }
 
@@ -82,7 +89,6 @@ function SetVel(){
 
 function addParticle(){
   let InitVel = ArrowTo.sub(CirclePos)
-  console.log(InitVel);
   let Mass = MassSlider.value();
   let Pholder = new Circle(CirclePos.x,CirclePos.y,(InitVel.x)/10,(InitVel.y)/10,Mass,"swarm"+clicker,0.8)
   particleArr.push(Pholder)
@@ -116,10 +122,27 @@ function AdvanceWorld(){
 class Circle{
   constructor(x,y,v_x,v_y,mass,id,res){
     this.radius = Math.sqrt(mass);
-    this.particle = new PointParticle(x,y,v_x,v_y,mass,id,this.radius,res)
+    this.particle = new PointParticle(x,y,v_x,v_y,10*mass,id,this.radius,res)
   }
 
   draw = function(){
+    noStroke();
+    circle(this.particle.pos.x,this.particle.pos.y,2*this.radius)
+  }
+
+  update = function(){
+    this.draw();
+  }
+}
+
+class StaticCircle{
+  constructor(x,y,mass,id,res){
+    this.radius = Math.sqrt(mass);
+    this.particle = new StaticParticle(x,y,10*mass,id,this.radius,res)
+  }
+
+  draw = function(){
+    noStroke();
     circle(this.particle.pos.x,this.particle.pos.y,2*this.radius)
   }
 
